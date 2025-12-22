@@ -21,9 +21,10 @@ public class MQTTHelper {
     private void connect() {
         new Thread(() -> {
             try {
+                String clientId = "android-" + java.util.UUID.randomUUID().toString();
                 mqttClient = new MqttClient(
                         MqttConfig.SERVER_URI,
-                        MqttConfig.CLIENT_ID,
+                        clientId,
                         null
                 );
 
