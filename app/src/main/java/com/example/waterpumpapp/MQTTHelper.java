@@ -1,9 +1,10 @@
 package com.example.waterpumpapp;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -13,9 +14,20 @@ public class MQTTHelper {
 
     private static final String TAG = "MQTT";
     private MqttClient mqttClient;
-
+    private ConnectionListener connectionListener;
+    private MessageListener messageListener;
     public MQTTHelper() {
         connect();
+    }
+
+
+    //Interfaces to communicate with main activity
+    public interface ConnectionListener {
+        void onConnectionLost();
+    }
+
+    public interface MessageListener {
+        void onMessage(String topic, String payload);
     }
 
     private void connect() {
@@ -34,25 +46,44 @@ public class MQTTHelper {
                 options.setCleanSession(true);
                 options.setAutomaticReconnect(true);
 
-                mqttClient.setCallback(new MqttCallback() {
+                mqttClient.setCallback(new MqttCallbackExtended() {
+                    @Override
+                    public void connectComplete(boolean reconnect, String serverURI) {
+                        subscribe(MqttConfig.TOPIC_ONLINE);
+                        subscribe(MqttConfig.TOPIC_STATUS);
+                    }
+
                     @Override
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost", cause);
+
+                        if (connectionListener != null) {
+                            connectionListener.onConnectionLost();
+                        }
+
                     }
 
                     @Override
                     public void messageArrived(String topic, MqttMessage message) {
+                        String payload = new String(message.getPayload());
                         Log.d(TAG, "Message arrived: " + message.toString());
+
+                        if (messageListener != null) {
+                            messageListener.onMessage(topic, payload);
+                        }
                     }
 
                     @Override
                     public void deliveryComplete(IMqttDeliveryToken token) {
                         Log.d(TAG, "Delivery complete");
+
                     }
                 });
 
                 mqttClient.connect(options);
                 Log.d(TAG, "Connected to HiveMQ");
+
+
 
             } catch (MqttException e) {
                 Log.e(TAG, "MQTT connect error", e);
@@ -75,5 +106,28 @@ public class MQTTHelper {
                 Log.e(TAG, "Publish error", e);
             }
         }).start();
+    }
+
+    public void subscribe(String topic) {
+        new Thread(() -> {
+            try {
+                if (mqttClient != null && mqttClient.isConnected()) {
+                    mqttClient.subscribe(topic, 1);
+                    Log.d(TAG, "Subscribed to: " + topic);
+                } else {
+                    Log.e(TAG, "Subscribe failed (not connected): " + topic);
+                }
+            } catch (MqttException e) {
+                Log.e(TAG, "Subscribe error: " + topic, e);
+            }
+        }).start();
+    }
+
+    public void setConnectionListener(ConnectionListener listener) {
+        this.connectionListener = listener;
+    }
+
+    public void setMessageListener(MessageListener listener) {
+        this.messageListener = listener;
     }
 }

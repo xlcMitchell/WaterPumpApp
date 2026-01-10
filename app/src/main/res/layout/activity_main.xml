@@ -8,6 +8,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Device status row -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <!-- Status dot -->
+        <View
+            android:id="@+id/viewOnlineDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/status_dot"/>
+
+        <TextView
+            android:id="@+id/txtDeviceStatus"
+            android:text="Device: CONNECTING"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
     <TextView
         android:id="@+id/txtStatus"
         android:text="Pump Status: Idle"

@@ -13,7 +13,7 @@ This task list follows an **Agile / iterative approach**. Work is organised into
 - [x] Choose HiveMQ Cloud as broker
 - [x] Decide on Android app as control interface
 - [x] Create GitHub repository
-- [x] Create initial README and TASKS.md
+- [x] Create initial README and other documentation
 
 **Done when:** Architecture decisions documented
 
@@ -42,7 +42,7 @@ This task list follows an **Agile / iterative approach**. Work is organised into
 - [x] Update silkscreen and pin labels
 - [ ] Order revised PCB (v2)
 - [ ] Assemble revised PCB
-- [ ] Solder ESP8266 module
+- [ ] Solder components
 - [ ] Power-on test (no load)
 
 **Done when:** PCB v2 powers correctly
@@ -88,7 +88,7 @@ This task list follows an **Agile / iterative approach**. Work is organised into
 
 - [ ] Connect ESP8266 to Wi-Fi
 - [ ] Connect ESP8266 to HiveMQ Cloud (TLS)
-- [ ] Subscribe to command topic (`plant/pump/cmd`)
+- [ ] Subscribe to command topic (`plant/pump/on`)
 - [ ] Parse incoming payloads
 - [ ] Drive relay / pump ON
 - [ ] Implement timed auto-OFF logic
