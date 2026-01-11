@@ -68,6 +68,8 @@ public class MQTTHelper {
                         String payload = new String(message.getPayload());
                         Log.d(TAG, "Message arrived: " + message.toString());
 
+                        //on message method will be called in main activity
+                        //topic and payload (message) passed through interface
                         if (messageListener != null) {
                             messageListener.onMessage(topic, payload);
                         }
@@ -123,6 +125,7 @@ public class MQTTHelper {
         }).start();
     }
 
+    //set connection listeners and message listeners in main activity
     public void setConnectionListener(ConnectionListener listener) {
         this.connectionListener = listener;
     }
