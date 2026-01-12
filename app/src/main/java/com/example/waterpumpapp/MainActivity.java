@@ -14,8 +14,10 @@ public class MainActivity extends AppCompatActivity {
     private MQTTHelper mqttHelper;
     private TextView txtStatus;
     private TextView txtDeviceStatus;
+    private TextView txtLastRun;
     private View viewOnlineDot;
     private View viePumpStatus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +28,9 @@ public class MainActivity extends AppCompatActivity {
         txtStatus = findViewById(R.id.txtStatus);
         txtDeviceStatus = findViewById(R.id.txtDeviceStatus);
         viewOnlineDot = findViewById(R.id.viewOnlineDot);
-
+        txtLastRun = findViewById(R.id.txtLastRun);
+        PrefsManager.init(this);
+        txtLastRun.setText(PrefsManager.getLatestWatering());
         //listen to connection
         mqttHelper.setConnectionListener(() -> {
             runOnUiThread(() ->
@@ -63,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
                     }else if(status.equals("DONE")){
                         GradientDrawable dot = (GradientDrawable) txtStatus.getBackground();
                         dot.setColor(getResources().getColor(android.R.color.holo_green_dark));
+                        PrefsManager.saveCurrentWateringTime();
+                        txtLastRun.setText(PrefsManager.getLatestWatering());
                     }
 
                 }
