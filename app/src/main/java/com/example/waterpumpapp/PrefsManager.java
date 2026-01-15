@@ -29,6 +29,7 @@ public class PrefsManager {
     // Keys - All  keys here
     private static final String MOISTURE_LATEST = "moisture";
     private static final String LAST_WATERING = "last";
+    private static final String HISTORY = "";
 
 
     // Initialize the manager called in main activity
@@ -52,10 +53,18 @@ public class PrefsManager {
         editor.apply();
     }
 
+    public static void setHistory(String dates){
+        editor.putString(HISTORY,dates);
+    }
+
 
     // --- GET METHODS ---
     public static String getLatestWatering() {
         return sharedPreferences.getString(LAST_WATERING, "N/A");
+    }
+
+    public static String getHistory(){
+        return sharedPreferences.getString(HISTORY,"Jan 13,12:37\nJan 12, 12:05\nJan 10, 11:12");
     }
 
     public static String getLatestMoisture() {
