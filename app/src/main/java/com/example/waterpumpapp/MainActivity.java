@@ -4,6 +4,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,11 @@ public class MainActivity extends AppCompatActivity {
     private View viePumpStatus;
     private Button btnWater;
     private TextView txtHistoryPreview;
+    private TextView txtMoistureValue;
+    private TextView txtThreshold;
+    private TextView txtCoolDownLabel;
+    private SeekBar seekThreshold;
+    private Switch switchAutoWater;
     private final int HISTORY_MAX = 5;
 
     private  List <String> history = new ArrayList<>();
@@ -39,10 +46,18 @@ public class MainActivity extends AppCompatActivity {
         viewOnlineDot = findViewById(R.id.viewOnlineDot);
         txtLastRun = findViewById(R.id.txtLastRun);
         btnWater = findViewById(R.id.btnWater);
+        txtMoistureValue = findViewById(R.id.txtMoistureValue);
         txtHistoryPreview = findViewById(R.id.txtHistoryPreview);
-
+        seekThreshold = findViewById(R.id.seekThreshold);
+        switchAutoWater = findViewById(R.id.switchAutoWater);
+        txtThreshold = findViewById(R.id.txtThresholdLabel);
+        txtCoolDownLabel = findViewById(R.id.txtCooldownLabel);
         PrefsManager.init(this);
         txtLastRun.setText("Last Watered: " + PrefsManager.getLatestWatering());
+
+        seekThreshold.setProgress(35);
+        txtThreshold.setText("Threshold: 35%");
+        switchAutoWater.setChecked(false);
 
         history = parseHistory(PrefsManager.getHistory());
         displayHistory();
@@ -58,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
         mqttHelper.setMessageListener((topic, payload) -> {
             runOnUiThread(() -> {
                 String status = payload.trim();
+                if(topic.equals("plant/moisture/reading")){
+                     txtMoistureValue.setText("Current: " + status + "%");
+                }
 
                 if (topic.equals("plant/device/online")) {
 
@@ -100,7 +118,61 @@ public class MainActivity extends AppCompatActivity {
         btnWater.setOnClickListener(v ->
                 mqttHelper.publish("on")
         );
+
+        // --- Auto-watering switch ---
+        switchAutoWater.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            publishAutoConfig();
+        });
+
+// --- Threshold slider ---
+        seekThreshold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtThreshold.setText("Threshold: " + progress + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // no-op
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // publish once when user releases slider
+                publishAutoConfig();
+            }
+        });
+
+
     }
+
+    private void publishAutoConfig() {
+
+        int enabled = switchAutoWater.isChecked() ? 1 : 0;
+
+        // 0–100 %
+        int threshold = seekThreshold.getProgress();
+
+        // 24 hours cooldown
+        int cooldownMin = 1440;
+        // moisture hysteresis to avoid rapid re-trigger
+        int hyst = 10;
+
+        // safety cap (optional, device can ignore if not used)
+        int maxPerDay = 3;
+
+        String payload =
+                "enabled=" + enabled +
+                        ";threshold=" + threshold +
+                        ";cooldownMin=" + cooldownMin +
+                        ";hyst=" + hyst +
+                        ";maxPerDay=" + maxPerDay;
+
+        // publish as retained so device receives it after reboot/reconnect
+        mqttHelper.publishAuto( payload);
+    }
+
 
     private List<String> parseHistory(String history){
         List<String> list = new ArrayList<>();

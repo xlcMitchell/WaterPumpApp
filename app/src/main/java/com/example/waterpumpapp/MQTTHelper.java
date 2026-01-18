@@ -51,6 +51,7 @@ public class MQTTHelper {
                     public void connectComplete(boolean reconnect, String serverURI) {
                         subscribe(MqttConfig.TOPIC_ONLINE);
                         subscribe(MqttConfig.TOPIC_STATUS);
+                        subscribe(MqttConfig.TOPIC_MOISTURE);
                     }
 
                     @Override
@@ -100,6 +101,23 @@ public class MQTTHelper {
                     MqttMessage message = new MqttMessage(payload.getBytes());
                     message.setQos(1);
                     mqttClient.publish(MqttConfig.TOPIC_PUMP, message);
+                    Log.d(TAG, "Published: " + payload);
+                } else {
+                    Log.e(TAG, "MQTT not connected");
+                }
+            } catch (MqttException e) {
+                Log.e(TAG, "Publish error", e);
+            }
+        }).start();
+    }
+
+    public void publishAuto(String payload) {
+        new Thread(() -> {
+            try {
+                if (mqttClient != null && mqttClient.isConnected()) {
+                    MqttMessage message = new MqttMessage(payload.getBytes());
+                    message.setQos(1);
+                    mqttClient.publish(MqttConfig.TOPIC_AUTO, message);
                     Log.d(TAG, "Published: " + payload);
                 } else {
                     Log.e(TAG, "MQTT not connected");

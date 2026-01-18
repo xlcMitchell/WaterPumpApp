@@ -145,14 +145,6 @@
                         android:textSize="16sp"
                         android:textColor="#333333" />
 
-                    <TextView
-                        android:id="@+id/txtMoistureLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Status: Sensor not installed"
-                        android:textSize="13sp"
-                        android:textColor="#777777"
-                        android:layout_marginTop="6dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -252,7 +244,7 @@
                         android:id="@+id/txtCooldownLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Cooldown: — hours"
+                        android:text="Cooldown: 24 hours"
                         android:textSize="13sp"
                         android:textColor="#777777"
                         android:layout_marginTop="12dp" />
