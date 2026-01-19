@@ -55,6 +55,7 @@ public class PrefsManager {
 
     public static void setHistory(String dates){
         editor.putString(HISTORY,dates);
+        editor.apply();
     }
 
 

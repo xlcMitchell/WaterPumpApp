@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         GradientDrawable dot = (GradientDrawable) txtStatus.getBackground();
                         dot.setColor(getResources().getColor(android.R.color.holo_green_dark));
                         PrefsManager.saveCurrentWateringTime();
-                        txtLastRun.setText(PrefsManager.getLatestWatering());
+                        txtLastRun.setText("Last Watered: " + PrefsManager.getLatestWatering());
                         updateHistory(PrefsManager.getLatestWatering());
                         PrefsManager.setHistory(updateHistoryString());
                         displayHistory(); //update the history on UI
